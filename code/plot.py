@@ -6,8 +6,9 @@ import glob
 # Get all Excel files in the 'data' directory
 file_paths = glob.glob("data/*.xlsx")
 
-# Define the sheets and columns to plot (we'll refer to entries in the first column here)
+# Define the sheets and columns to plot (cleaned entries by stripping whitespace)
 sheets_to_plot = {
+    "Earned Doctorates": ["Science", "Engineering", "Non-science and engineering"],
     "Graduate Students": ["Science", "Engineering", "Health"],
     "Source": ["Fellowships", "Research assistantships", "Teaching assistantships", "Other types of support", "Personal resources"],
     "Postdoctorates": ["Science", "Engineering", "Health"]
@@ -39,8 +40,17 @@ for file_path in file_paths:
             # Transpose the data so that years are on the x-axis
             data = data.transpose()
 
-            # Filter the data to include only the specified entries
-            data_to_plot = data[entries]
+            # Clean up column names in the DataFrame by stripping whitespace
+            data.columns = data.columns.str.strip()
+
+            # Filter only existing columns to avoid KeyError
+            available_entries = [entry for entry in entries if entry in data.columns]
+            if not available_entries:
+                print(f"No matching columns found for '{sheet_name}' in '{file_name}'. Skipping plot.")
+                continue
+
+            # Filter the data to include only the specified existing entries
+            data_to_plot = data[available_entries]
 
             # Create the plot with improved style
             plt.figure(figsize=(10, 6))  # Set a consistent figure size
