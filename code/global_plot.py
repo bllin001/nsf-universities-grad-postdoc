@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import glob
+import matplotlib.cm as cm
+import numpy as np
 
 # Get all Excel files in the 'data' directory
 file_paths = glob.glob("data/*.xlsx")
@@ -22,6 +24,9 @@ y_axis_labels = {
     "Postdoctorates": "Total of postdoctorates"
 }
 
+# Define Monarch Blue color for "Old Dominion U"
+monarch_blue = "#003057"
+
 # Directory to save the plots
 output_dir = 'pictures'
 os.makedirs(output_dir, exist_ok=True)  # Create directory if it doesn't exist
@@ -32,7 +37,12 @@ plt.style.use('ggplot')  # Use a built-in style
 # Loop through each sheet to generate combined plots
 for sheet_name, columns in sheets_to_plot.items():
     plt.figure(figsize=(12, 8))  # Set a consistent figure size for each sheet
-    for file_path in file_paths:
+    
+    # Generate unique colors for each university
+    num_universities = len(file_paths)
+    colors = cm.get_cmap("tab20", num_universities)  # Using 'tab20' colormap for distinct colors
+    
+    for idx, file_path in enumerate(file_paths):
         # Extract the filename without extension and format the university name
         file_name = os.path.splitext(os.path.basename(file_path))[0]
         university_name = file_name.replace('-', ' ')
@@ -69,15 +79,23 @@ for sheet_name, columns in sheets_to_plot.items():
                     print(f"Column '{columns[0]}' not found in '{sheet_name}' for '{file_name}'. Skipping.")
                     continue
 
-            # Plot each university with specified line style and transparency
-            line_style = '-' if university_name == "Old Dominion U" else '--'
-            opacity = 1.0 if university_name == "Old Dominion U" else 0.5
-            data_to_plot.plot(
-                label=university_name,
-                linestyle=line_style,
-                linewidth=2,
-                alpha=opacity
-            )
+            # Plot each university with a unique color
+            if university_name == "Old Dominion U":
+                # Use strong line with Monarch Blue color for "Old Dominion U"
+                data_to_plot.plot(
+                    label=university_name,
+                    color=monarch_blue,
+                    linestyle='-',
+                    linewidth=2.5
+                )
+            else:
+                # Assign a unique color for other universities
+                data_to_plot.plot(
+                    label=university_name,
+                    color=colors(idx),
+                    linestyle='--',
+                    linewidth=1.5
+                )
 
     # Set plot titles, labels, and legend
     plt.title(f"Global Comparison - {sheet_name}", fontsize=16, fontweight='bold')
