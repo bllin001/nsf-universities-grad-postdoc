@@ -6,12 +6,20 @@ import glob
 # Get all Excel files in the 'data' directory
 file_paths = glob.glob("data/*.xlsx")
 
-# Define the sheets and columns to plot (cleaned entries by stripping whitespace)
+# Define the sheets and columns to plot (we'll refer to entries in the first column here)
 sheets_to_plot = {
     "Earned Doctorates": ["Science", "Engineering", "Non-science and engineering"],
     "Graduate Students": ["Science", "Engineering", "Health"],
     "Source": ["Fellowships", "Research assistantships", "Teaching assistantships", "Other types of support", "Personal resources"],
     "Postdoctorates": ["Science", "Engineering", "Health"]
+}
+
+# Define custom y-axis labels for each sheet
+y_axis_labels = {
+    "Earned Doctorates": "Total of earned doctorates",
+    "Graduate Students": "Total of full and part-time students",
+    "Source": "Full-time grad students with federal support",
+    "Postdoctorates": "Total of postdoctorates"
 }
 
 # Directory to save the plots
@@ -53,13 +61,17 @@ for file_path in file_paths:
             data_to_plot = data[available_entries]
 
             # Create the plot with improved style
-            plt.figure(figsize=(10, 6))  # Set a consistent figure size
+            plt.figure(figsize=(12, 8))  # Set a consistent figure size
             data_to_plot.plot(linewidth=2)  # Increase line width for better visibility
             plt.title(f"{university_name} - {sheet_name}", fontsize=16, fontweight='bold')
-            plt.xlabel("Year", fontsize=14)
-            plt.ylabel("Values", fontsize=14)
-            plt.xticks(fontsize=12)
-            plt.yticks(fontsize=12)
+            plt.xlabel("Year", fontsize=12)
+
+            # Set the custom y-axis label for each sheet
+            y_label = y_axis_labels.get(sheet_name, "Values")
+            plt.ylabel(y_label, fontsize=12)
+
+            plt.xticks(fontsize=10)
+            plt.yticks(fontsize=10)
 
             # Customize the legend to be on the right side, outside the plot area
             plt.legend(title="Categories", loc="center left", bbox_to_anchor=(1.05, 0.5), fontsize=10, title_fontsize=12, frameon=True, shadow=True)
